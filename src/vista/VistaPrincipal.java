@@ -1,47 +1,84 @@
 package vista;
 
-import modelo.Cliente;
-import modelo.Factura;
+import com.formdev.flatlaf.FlatLightLaf;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.net.URL;
 
 public class VistaPrincipal extends JFrame {
 
-    private static VistaPrincipal instancia; // Instancia estática
-
-    private JTabbedPane pestañas; // Para gestionar las pestañas
-
     public VistaPrincipal() {
-        instancia = this; // Guardamos la instancia activa
-
         setTitle("Sistema de Gestión de Bordados");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(900, 600);
         setLocationRelativeTo(null);
 
-        // Crear los paneles
-        PanelClientes panelClientes = new PanelClientes();
+        try {
+            // Aplicar apariencia moderna
+            UIManager.setLookAndFeel(new FlatLightLaf());
+        } catch (Exception e) {
+            System.out.println("No se pudo aplicar FlatLaf: " + e.getMessage());
+        }
 
-        PanelFacturasListado panelFacturasListado = new PanelFacturasListado();
+        // Layout principal
+        getContentPane().setLayout(new BorderLayout());
 
-        // Crear pestañas
-        pestañas = new JTabbedPane();
+        // Panel superior con logotipo y título
+        JPanel panelEncabezado = new JPanel(new BorderLayout());
+        panelEncabezado.setBackground(new Color(255, 248, 232));
+        panelEncabezado.setBorder(new EmptyBorder(10, 20, 10, 20));
 
-        pestañas.addTab("Clientes", panelClientes);
+        // Cargar logotipo
+        ImageIcon icono = null;
+        try {
+            URL imagenURL = getClass().getResource("/recursos/ECLATok.PNG");
+            if (imagenURL != null) {
+                Image imagenOriginal = new ImageIcon(imagenURL).getImage();
+                Image imagenRedimensionada = imagenOriginal.getScaledInstance(60, 60, Image.SCALE_SMOOTH);
+                icono = new ImageIcon(imagenRedimensionada);
+            } else {
+                System.out.println("No se encontró el recurso de imagen.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error cargando el logotipo: " + e.getMessage());
+        }
 
-        pestañas.addTab("Facturas", panelFacturasListado);
+        JLabel labelLogo = new JLabel(icono);
 
-        // Agregar pestañas al frame
-        add(pestañas, BorderLayout.CENTER);
+        // Título estilizado
+        JLabel labelTexto = new JLabel("Bordados Éclat");
+        labelTexto.setFont(new Font("Serif", Font.BOLD, 30));
+        labelTexto.setForeground(new Color(90, 60, 30));
+
+        JPanel panelTextoLogo = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        panelTextoLogo.setBackground(new Color(255, 248, 232));
+        panelTextoLogo.add(labelLogo);
+        panelTextoLogo.add(labelTexto);
+
+        panelEncabezado.add(panelTextoLogo, BorderLayout.WEST);
+
+        // Agregar panel encabezado
+        getContentPane().add(panelEncabezado, BorderLayout.NORTH);
+
+        // Pestañas de la aplicación
+        JTabbedPane pestanas = new JTabbedPane();
+
+        // Panel Clientes
+        JPanel panelClientes = new PanelClientes(); // Asegúrate que esta clase exista
+        pestanas.addTab("Clientes", panelClientes);
+
+        // Panel Facturas
+        JPanel panelFacturas = new PanelFacturasListado(); // Asegúrate que esta clase exista
+        pestanas.addTab("Facturas", panelFacturas);
+
+        getContentPane().add(pestanas, BorderLayout.CENTER);
     }
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            VistaPrincipal vista = new VistaPrincipal();
-            vista.setVisible(true);
+            new VistaPrincipal().setVisible(true);
         });
     }
 }
-
