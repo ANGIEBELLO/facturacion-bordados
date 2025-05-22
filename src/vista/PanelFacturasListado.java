@@ -19,6 +19,9 @@ public class PanelFacturasListado extends JPanel {
     private JTextField txtBuscarProducto;
     private JButton btnBuscarProducto;
     private JButton btnAbrirFactura;
+    // Panel de descripción inferior
+    private JTextArea txtDescripcionFactura;
+
 
     public PanelFacturasListado() {
         facturaController = new FacturaController();
@@ -43,6 +46,42 @@ public class PanelFacturasListado extends JPanel {
 
         JScrollPane scroll = new JScrollPane(tabla);
         this.add(scroll, BorderLayout.CENTER);
+
+        // Área de descripción de factura
+        txtDescripcionFactura = new JTextArea(5, 50);
+        txtDescripcionFactura.setEditable(false);
+        txtDescripcionFactura.setLineWrap(true);
+        txtDescripcionFactura.setWrapStyleWord(true);
+        JScrollPane scrollDescripcion = new JScrollPane(txtDescripcionFactura);
+
+        this.add(scrollDescripcion, BorderLayout.SOUTH);
+
+        tabla.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int fila = tabla.getSelectedRow();
+                if (fila >= 0) {
+                    int idFactura = (int) tabla.getValueAt(fila, 0);
+                    Factura factura = facturaController.obtenerFacturaConItems(idFactura);
+
+                    if (factura != null && factura.getItems() != null) {
+                        StringBuilder descripcion = new StringBuilder();
+                        descripcion.append("Productos:\n");
+
+                        factura.getItems().forEach(item -> {
+                            descripcion.append("- ").append(item.getDescripcion())
+                                    .append(" | Cant: ").append(item.getCantidad())
+                                    .append(" | Unit: $").append(item.getValorUnitario())
+                                    .append(" | Subtotal: $").append(item.getSubtotal())
+                                    .append("\n");
+                        });
+
+                        txtDescripcionFactura.setText(descripcion.toString());
+                    }
+                }
+            }
+        });
+
+
 
         // Cargar todas las facturas
         cargarFacturas();

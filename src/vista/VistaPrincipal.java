@@ -33,7 +33,7 @@ public class VistaPrincipal extends JFrame {
         // Cargar logotipo
         ImageIcon icono = null;
         try {
-            URL imagenURL = getClass().getResource("/recursos/ECLAT1ok.PNG");
+            URL imagenURL = getClass().getResource("/recursos/ECLATok.PNG");
             if (imagenURL != null) {
                 Image imagenOriginal = new ImageIcon(imagenURL).getImage();
                 Image imagenRedimensionada = imagenOriginal.getScaledInstance(60, 60, Image.SCALE_SMOOTH);
