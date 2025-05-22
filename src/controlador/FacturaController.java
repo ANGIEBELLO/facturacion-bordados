@@ -26,7 +26,7 @@ public class FacturaController {
         String sqlInsertFactura = "INSERT INTO facturas (fecha, total_factura, abono_realizado, saldo_pendiente, estado_pago, estado_trabajo, id_cliente) VALUES (?, ?, ?, ?, ?, ?, ?)";
         String sqlUpdateFactura = "UPDATE facturas SET fecha = ?, total_factura = ?, abono_realizado = ?, saldo_pendiente = ?, estado_pago = ?, estado_trabajo = ? WHERE id_factura = ?";
         String sqlDeleteItems = "DELETE FROM items_factura WHERE id_factura = ?";
-        String sqlInsertItem = "INSERT INTO items_factura (id_factura, tipo, producto, cantidad, valor_unitario, empleado, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sqlInsertItem = "INSERT INTO items_factura (id_factura, tipo, producto, cantidad, valor_unitario, subtotal) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = ConexionBD.obtenerConexion()) {
             conn.setAutoCommit(false);
@@ -86,7 +86,7 @@ public class FacturaController {
                         stmtItems.setString(3, item.getDescripcion());
                         stmtItems.setInt(4, item.getCantidad());
                         stmtItems.setDouble(5, item.getValorUnitario());
-                        stmtItems.setDouble(7, item.getSubtotal());
+                        stmtItems.setDouble(6, item.getSubtotal());
                         stmtItems.addBatch();
                     }
                     stmtItems.executeBatch();
@@ -210,7 +210,7 @@ public class FacturaController {
 
         String sql = "SELECT f.id_factura, f.fecha, f.total_factura, f.abono_realizado, f.saldo_pendiente, " +
                 "f.estado_pago, f.estado_trabajo, c.nombre AS clienteNombre, c.telefono AS clienteTelefono, " +
-                "i.id_item, i.producto, i.cantidad, i.valor_unitario " +
+                "i.id_item, i.producto, i.cantidad, i.valor_unitario, i.tipo " +
                 "FROM facturas f " +
                 "JOIN clientes c ON f.id_cliente = c.id_cliente " +
                 "JOIN items_factura i ON f.id_factura = i.id_factura " +
@@ -313,7 +313,7 @@ public class FacturaController {
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         String sqlItem = "INSERT INTO items_factura (id_factura, tipo, producto, cantidad, valor_unitario, subtotal) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = ConexionBD.obtenerConexion()) {
             conn.setAutoCommit(false);
@@ -340,7 +340,7 @@ public class FacturaController {
                             stmtItem.setString(3, item.getDescripcion());
                             stmtItem.setInt(4, item.getCantidad());
                             stmtItem.setDouble(5, item.getValorUnitario());
-                            stmtItem.setDouble(7, item.getSubtotal());
+                            stmtItem.setDouble(6, item.getSubtotal());
                             stmtItem.addBatch();
                         }
                         stmtItem.executeBatch();

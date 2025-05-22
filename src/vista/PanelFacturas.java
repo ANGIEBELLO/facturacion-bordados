@@ -10,6 +10,7 @@ import util.GeneradorPDF;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -19,6 +20,7 @@ import java.awt.*;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -340,6 +342,8 @@ public class PanelFacturas extends JPanel {
     }
 
     private void cargarDatosFactura() {
+
+
         if (factura != null) {
             txtNombreCliente.setText(cliente.getNombre());
             txtTelefono.setText(cliente.getTelefono());

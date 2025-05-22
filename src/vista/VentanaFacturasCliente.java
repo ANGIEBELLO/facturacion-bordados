@@ -13,6 +13,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -102,6 +103,7 @@ public class VentanaFacturasCliente extends JFrame {
     private void cargarFacturas() {
         modeloTabla.setRowCount(0);
         List<Factura> facturas = facturaController.obtenerFacturasPorCliente(cliente.getId());
+        facturas.sort(Comparator.comparing(Factura::getFecha).reversed());
 
         SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
         NumberFormat formatoPesos = NumberFormat.getCurrencyInstance(new Locale("es", "CO"));

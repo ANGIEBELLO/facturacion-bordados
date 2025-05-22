@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.Comparator;
 import java.util.List;
 
 public class PanelFacturasListado extends JPanel {
@@ -113,6 +114,7 @@ public class PanelFacturasListado extends JPanel {
 
     private void cargarFacturas() {
         List<Factura> facturas = facturaController.obtenerTodasLasFacturas();
+        facturas.sort(Comparator.comparing(Factura::getFecha).reversed());
         mostrarFacturasEnTabla(facturas);
     }
 }
