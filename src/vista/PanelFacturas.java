@@ -400,14 +400,19 @@ public class PanelFacturas extends JPanel {
             return;
         }
 
+
         double valor;
         try {
+
             valor = Double.parseDouble(JOptionPane.showInputDialog(this, "Valor unitario:"));
             if (valor <= 0) throw new NumberFormatException();
+
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Valor unitario inválido.");
             return;
         }
+
+
 
 
         ItemFactura item = new ItemFactura();

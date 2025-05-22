@@ -2,6 +2,7 @@ package util;
 
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
+import com.itextpdf.text.pdf.draw.LineSeparator;
 import modelo.Factura;
 import modelo.ItemFactura;
 
@@ -10,43 +11,72 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.DecimalFormat;
-import java.util.Map;
-
 import java.util.List;
 
 public class GeneradorPDF {
+
     public static void generarFacturaPDF(Factura factura) {
-        String rutaSalida = "Factura_" + factura.getId() + ".pdf"; // Declaración de la ruta
+        String rutaSalida = "Factura_" + factura.getId() + ".pdf";
 
         try {
             Document documento = new Document();
-            PdfWriter.getInstance(documento, new FileOutputStream("Factura_" + factura.getId() + ".pdf"));
+            PdfWriter.getInstance(documento, new FileOutputStream(rutaSalida));
             documento.open();
 
-            Font tituloFont = new Font(Font.FontFamily.HELVETICA, 20, Font.BOLD);
-            Paragraph titulo = new Paragraph("FACTURA", tituloFont);
-            titulo.setAlignment(Element.ALIGN_CENTER);
-            documento.add(titulo);
+            // LOGO + NOMBRE EMPRESA
+            PdfPTable encabezadoTabla = new PdfPTable(2);
+            encabezadoTabla.setWidthPercentage(100);
+            encabezadoTabla.setWidths(new float[]{1, 3});
+
+            // Cargar imagen
+            Image logo = Image.getInstance("src/recursos/ECLAT1ok.PNG"); // Asegúrate de que esté en la ruta correcta
+            logo.scaleToFit(120, 120);
+            PdfPCell logoCell = new PdfPCell(logo);
+            logoCell.setBorder(Rectangle.NO_BORDER);
+            logoCell.setHorizontalAlignment(Element.ALIGN_LEFT);
+            encabezadoTabla.addCell(logoCell);
+
+            // Nombre empresa
+            Font fontEmpresa = new Font(Font.FontFamily.HELVETICA, 30, Font.BOLD);
+            PdfPCell nombreEmpresa = new PdfPCell(new Phrase("Bordados Éclat", fontEmpresa));
+            nombreEmpresa.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            nombreEmpresa.setHorizontalAlignment(Element.ALIGN_LEFT);
+            nombreEmpresa.setBorder(Rectangle.NO_BORDER);
+            encabezadoTabla.addCell(nombreEmpresa);
+
+            documento.add(encabezadoTabla);
+
             documento.add(new Paragraph(" ")); // Espacio
+            LineSeparator separator = new LineSeparator();
+            documento.add(new Chunk(separator));
+            documento.add(new Paragraph(" "));
+
+            // TÍTULO DE FACTURA
+            Font tituloFont = new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD);
             Paragraph encabezado = new Paragraph("FACTURA N° " + factura.getId(), tituloFont);
             encabezado.setAlignment(Element.ALIGN_CENTER);
             documento.add(encabezado);
 
+            documento.add(new Paragraph(" "));
             documento.add(new Paragraph("Cliente: " + factura.getCliente().getNombre()));
             documento.add(new Paragraph("Teléfono: " + factura.getCliente().getTelefono()));
             documento.add(new Paragraph("Fecha: " + factura.getFecha()));
             documento.add(new Paragraph(" "));
 
+            // TABLA DE ITEMS
             PdfPTable tabla = new PdfPTable(5);
             tabla.setWidthPercentage(100);
             tabla.setSpacingBefore(10f);
-            tabla.setSpacingAfter(10f);
+            tabla.setWidths(new float[]{2, 4, 2, 2, 2});
 
-            tabla.addCell("Tipo");
-            tabla.addCell("Descripción");
-            tabla.addCell("Cantidad");
-            tabla.addCell("Valor Unitario");
-            tabla.addCell("Subtotal");
+            Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
+            String[] headers = {"Tipo", "Descripción", "Cantidad", "Valor Unitario", "Subtotal"};
+            for (String h : headers) {
+                PdfPCell cell = new PdfPCell(new Phrase(h, headerFont));
+                cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                tabla.addCell(cell);
+            }
 
             DecimalFormat formatoMoneda = new DecimalFormat("$ #,##0.00");
 
@@ -61,24 +91,25 @@ public class GeneradorPDF {
 
             documento.add(tabla);
 
-            // Totales
+            // TOTALES
             PdfPTable resumen = new PdfPTable(2);
-            resumen.setWidthPercentage(50);
+            resumen.setWidthPercentage(40);
             resumen.setHorizontalAlignment(Element.ALIGN_RIGHT);
             resumen.setSpacingBefore(10f);
+            resumen.setWidths(new float[]{2, 2});
 
-            resumen.addCell("TOTAL");
-            resumen.addCell(formatoMoneda.format(factura.getTotal()));
+            resumen.addCell(getCeldaNegrita("TOTAL:"));
+            resumen.addCell(getCeldaValor(formatoMoneda.format(factura.getTotal())));
 
-            resumen.addCell("ABONO");
-            resumen.addCell(formatoMoneda.format(factura.getAbono()));
+            resumen.addCell(getCeldaNegrita("ABONO:"));
+            resumen.addCell(getCeldaValor(formatoMoneda.format(factura.getAbono())));
 
-            resumen.addCell("SALDO");
-            resumen.addCell(formatoMoneda.format(factura.getSaldo()));
+            resumen.addCell(getCeldaNegrita("SALDO:"));
+            resumen.addCell(getCeldaValor(formatoMoneda.format(factura.getSaldo())));
 
             documento.add(resumen);
 
-            // Mensaje de agradecimiento
+            // AGRADECIMIENTO
             Paragraph agradecimiento = new Paragraph("Gracias por su compra. ¡Esperamos volver a verlo pronto!");
             agradecimiento.setAlignment(Element.ALIGN_CENTER);
             agradecimiento.setSpacingBefore(20f);
@@ -86,74 +117,30 @@ public class GeneradorPDF {
 
             documento.close();
 
-            // Abrir PDF automáticamente
+            // ABRIR PDF
             File pdfFile = new File(rutaSalida);
-            if (pdfFile.exists()) {
-                if (Desktop.isDesktopSupported()) {
-                    Desktop.getDesktop().open(pdfFile);
-                } else {
-                    System.out.println("Desktop no soportado. No se puede abrir el PDF automáticamente.");
-                }
+            if (pdfFile.exists() && Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(pdfFile);
             }
-            System.out.println("Factura PDF generada con éxito.");
 
         } catch (Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error al generar el PDF: " + e.getMessage());
         }
     }
 
-
-    // Resumen de empleados y salarios
-    public static void generarResumenEmpleadosPDF(Map<String, Map<String, Integer>> resumen, Map<String, Double> salarios) throws Exception {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Guardar Resumen de Empleados como PDF");
-        fileChooser.setSelectedFile(new File("Resumen_Empleados.pdf"));
-
-        int userSelection = fileChooser.showSaveDialog(null);
-        if (userSelection != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
-
-        File archivoPDF = fileChooser.getSelectedFile();
-        Document documento = new Document();
-        DecimalFormat df = new DecimalFormat("#,###.##");
-
-        PdfWriter.getInstance(documento, new FileOutputStream(archivoPDF));
-        documento.open();
-
-        Font fontTitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
-        Paragraph titulo = new Paragraph("RESUMEN DE TRABAJOS Y SALARIOS DE EMPLEADOS", fontTitulo);
-        titulo.setAlignment(Element.ALIGN_CENTER);
-        documento.add(titulo);
-        documento.add(new Paragraph(" "));
-
-        PdfPTable tabla = new PdfPTable(4);
-        tabla.setWidthPercentage(100);
-        tabla.addCell("Empleado");
-        tabla.addCell("Bordados");
-        tabla.addCell("Programas");
-        tabla.addCell("Salario Total");
-
-        for (String nombre : resumen.keySet()) {
-            Map<String, Integer> trabajos = resumen.get(nombre);
-            int bordados = trabajos.getOrDefault("bordado", 0);
-            int programas = trabajos.getOrDefault("programa", 0);
-            double salario = salarios.getOrDefault(nombre, 0.0);
-
-            tabla.addCell(nombre);
-            tabla.addCell(String.valueOf(bordados));
-            tabla.addCell(String.valueOf(programas));
-            tabla.addCell("$" + df.format(salario));
-        }
-
-        documento.add(tabla);
-        documento.close();
-
-        if (Desktop.isDesktopSupported()) {
-            Desktop.getDesktop().open(archivoPDF);
-        } else {
-            JOptionPane.showMessageDialog(null, "PDF generado en:\n" + archivoPDF.getAbsolutePath());
-        }
+    // CELDAS DE TOTALES ESTÉTICAS
+    private static PdfPCell getCeldaNegrita(String texto) {
+        Font font = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
+        PdfPCell cell = new PdfPCell(new Phrase(texto, font));
+        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        return cell;
     }
 
+    private static PdfPCell getCeldaValor(String texto) {
+        Font font = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
+        PdfPCell cell = new PdfPCell(new Phrase(texto, font));
+        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        return cell;
+    }
 }

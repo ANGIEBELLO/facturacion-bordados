@@ -33,10 +33,10 @@ public class VistaPrincipal extends JFrame {
         // Cargar logotipo
         ImageIcon icono = null;
         try {
-            URL imagenURL = getClass().getResource("/recursos/ECLATok.PNG");
+            URL imagenURL = getClass().getResource("/recursos/ECLAT1ok.PNG");
             if (imagenURL != null) {
                 Image imagenOriginal = new ImageIcon(imagenURL).getImage();
-                Image imagenRedimensionada = imagenOriginal.getScaledInstance(60, 60, Image.SCALE_SMOOTH);
+                Image imagenRedimensionada = imagenOriginal.getScaledInstance(75, 75, Image.SCALE_SMOOTH);
                 icono = new ImageIcon(imagenRedimensionada);
             } else {
                 System.out.println("No se encontró el recurso de imagen.");
@@ -49,8 +49,8 @@ public class VistaPrincipal extends JFrame {
 
         // Título estilizado
         JLabel labelTexto = new JLabel("Bordados Éclat");
-        labelTexto.setFont(new Font("Serif", Font.BOLD, 30));
-        labelTexto.setForeground(new Color(90, 60, 30));
+        labelTexto.setFont(new Font("Serif", Font.BOLD, 33));
+
 
         JPanel panelTextoLogo = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         panelTextoLogo.setBackground(new Color(255, 248, 232));
