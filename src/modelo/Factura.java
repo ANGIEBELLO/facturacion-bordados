@@ -10,6 +10,7 @@ public class Factura {
     private double total;
     private double abono;
     private double saldo;
+    private double totalFactura;
     private int idCliente;
     private String estado;         // Estado del pago (Pagada, Pendiente)
     private String estadoTrabajo;  // Estado del trabajo (En proceso, Listo, etc.)
@@ -17,6 +18,7 @@ public class Factura {
     private Cliente cliente;
     private String clienteNombre;
     private String telefonoCliente;
+
 
     public Factura() {
         this.fecha = new Date();
@@ -194,4 +196,11 @@ public class Factura {
         }
     }
 
+    public void setTotalFactura(double totalFactura) {
+        this.totalFactura = totalFactura;
+    }
+
+    public double getTotalFactura() {
+        return totalFactura;
+    }
 }

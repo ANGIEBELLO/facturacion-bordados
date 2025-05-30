@@ -36,7 +36,7 @@ public class VistaPrincipal extends JFrame {
             URL imagenURL = getClass().getResource("/recursos/ECLAT1ok.PNG");
             if (imagenURL != null) {
                 Image imagenOriginal = new ImageIcon(imagenURL).getImage();
-                Image imagenRedimensionada = imagenOriginal.getScaledInstance(75, 75, Image.SCALE_SMOOTH);
+                Image imagenRedimensionada = imagenOriginal.getScaledInstance(65, 65, Image.SCALE_SMOOTH);
                 icono = new ImageIcon(imagenRedimensionada);
             } else {
                 System.out.println("No se encontró el recurso de imagen.");
@@ -72,6 +72,10 @@ public class VistaPrincipal extends JFrame {
         // Panel Facturas
         JPanel panelFacturas = new PanelFacturasListado(); // Asegúrate que esta clase exista
         pestanas.addTab("Facturas", panelFacturas);
+
+        //Panel Finanzas
+
+        pestanas.addTab("Finanzas", new PanelFinanzas());
 
         getContentPane().add(pestanas, BorderLayout.CENTER);
     }

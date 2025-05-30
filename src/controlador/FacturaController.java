@@ -3,13 +3,12 @@ package controlador;
 import modelo.Cliente;
 import modelo.Factura;
 import modelo.ItemFactura;
+import modelo.ResumenFacturasMes;
 import util.ConexionBD;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.Date;
+import java.util.*;
 import javax.swing.JOptionPane;
 
 public class FacturaController {
@@ -462,6 +461,89 @@ public class FacturaController {
         }
         return items;
     }
+
+    public ResumenFacturasMes obtenerFacturasDelMes(Date fecha) {
+        List<Factura> facturasDelMes = new ArrayList<>();
+        double totalFacturado = 0.0;
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(fecha);
+        int mes = cal.get(Calendar.MONTH) + 1;
+        int anio = cal.get(Calendar.YEAR);
+
+        String sql = "SELECT f.id_factura, f.id_cliente, f.fecha, f.total_factura, f.abono_realizado, f.estado_trabajo, c.nombre " +
+                "FROM facturas f " +
+                "JOIN clientes c ON f.id_cliente = c.id_cliente " +
+                "WHERE MONTH(f.fecha) = ? AND YEAR(f.fecha) = ?";
+
+        try (Connection conn = ConexionBD.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, mes);
+            stmt.setInt(2, anio);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Factura factura = new Factura();
+                factura.setId(rs.getInt("id_factura"));
+                factura.setClienteNombre(rs.getString("nombre"));
+                factura.setIdCliente(rs.getInt("id_cliente"));
+                factura.setFecha(rs.getDate("fecha"));
+                factura.setAbono(rs.getDouble("abono_realizado"));
+                factura.setTotalFactura(rs.getDouble("total_factura"));
+
+                totalFacturado += factura.getTotalFactura(); // Acumulador
+
+                facturasDelMes.add(factura);
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        ResumenFacturasMes resumen = new ResumenFacturasMes();
+        resumen.setFacturas(facturasDelMes);
+        resumen.setTotalFacturado(totalFacturado);
+        return resumen;
+    }
+
+
+    public List<Factura> obtenerFacturasPorMesYAnio(int mes, int anio) {
+        List<Factura> lista = new ArrayList<>();
+
+        String sql = "SELECT f.id_factura, f.id_cliente, f.fecha, f.total_factura, f.abono_realizado, f.estado_trabajo, c.nombre " +
+                "FROM facturas f " +
+                "JOIN clientes c ON f.id_cliente = c.id_cliente " +
+                "WHERE MONTH(f.fecha) = ? AND YEAR(f.fecha) = ?";
+
+        try (Connection conn = ConexionBD.obtenerConexion();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, mes);
+            stmt.setInt(2, anio);
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Factura f = new Factura();
+                f.setId(rs.getInt("id_factura"));
+                f.setIdCliente(rs.getInt("id_cliente"));
+                f.setClienteNombre(rs.getString("nombre"));
+                f.setFecha(rs.getDate("fecha"));
+                f.setAbono(rs.getDouble("abono_realizado"));
+                f.setIdCliente(rs.getInt("id_cliente"));
+                f.setTotalFactura(rs.getDouble("total_factura"));
+                lista.add(f);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return lista;
+    }
+
+
+
 
 
 }
