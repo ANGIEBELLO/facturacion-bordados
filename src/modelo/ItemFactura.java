@@ -43,6 +43,7 @@ public class ItemFactura {
         this.cantidad = cantidad;
         this.valorUnitario = valorUnitario;
         this.nombre = nombre;
+
     }
 
     // Getters y Setters

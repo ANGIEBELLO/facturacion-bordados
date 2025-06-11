@@ -103,7 +103,7 @@ import java.util.Vector;
 
             lblTotalMes.setText("Total del Mes: " + String.format("$%,.0f", totalMes));
             lblTotalAbonos.setText("Total Abonos: " + String.format("$%,.0f", totalAbonos));
-            lblGanancia.setText("Ganancia Neta: " + String.format("$%,.0f", ganancia));
+            lblGanancia.setText("Total Saldos Pendientes: " + String.format("$%,.0f", ganancia));
         }
 
         private void cargarDatos() {

@@ -27,6 +27,7 @@ public class PanelFacturasListado extends JPanel {
         facturaController = new FacturaController();
         setLayout(new BorderLayout());
 
+
         // Crear campos de búsqueda
         txtBuscarProducto = new JTextField(20);
         btnBuscarProducto = new JButton("Buscar por producto");

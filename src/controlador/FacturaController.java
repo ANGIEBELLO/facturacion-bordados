@@ -1,9 +1,6 @@
 package controlador;
 
-import modelo.Cliente;
-import modelo.Factura;
-import modelo.ItemFactura;
-import modelo.ResumenFacturasMes;
+import modelo.*;
 import util.ConexionBD;
 
 import java.sql.*;
@@ -13,7 +10,7 @@ import javax.swing.JOptionPane;
 
 public class FacturaController {
 
-    public void guardarOActualizarFacturaConItems(Factura factura) {
+    public int guardarOActualizarFacturaConItems(Factura factura) {
         factura.calcularTotales();
 
         if (factura.getAbono() >= factura.getTotal()) {
@@ -27,10 +24,10 @@ public class FacturaController {
         String sqlDeleteItems = "DELETE FROM items_factura WHERE id_factura = ?";
         String sqlInsertItem = "INSERT INTO items_factura (id_factura, tipo, producto, cantidad, valor_unitario, subtotal) VALUES (?, ?, ?, ?, ?, ?)";
 
+        int idFactura = factura.getId();
+
         try (Connection conn = ConexionBD.obtenerConexion()) {
             conn.setAutoCommit(false);
-
-            int idFactura = factura.getId();
 
             try {
                 if (idFactura > 0) {
@@ -46,6 +43,7 @@ public class FacturaController {
                         stmtUpdate.executeUpdate();
                     }
 
+                    // Borrar ítems antiguos
                     try (PreparedStatement stmtDelete = conn.prepareStatement(sqlDeleteItems)) {
                         stmtDelete.setInt(1, idFactura);
                         stmtDelete.executeUpdate();
@@ -67,11 +65,11 @@ public class FacturaController {
                         try (ResultSet rs = stmtInsert.getGeneratedKeys()) {
                             if (rs.next()) {
                                 idFactura = rs.getInt(1);
-                                factura.setId(idFactura); // actualizamos el ID en el objeto
+                                factura.setId(idFactura);
                             } else {
                                 conn.rollback();
                                 JOptionPane.showMessageDialog(null, "No se pudo obtener el ID de la factura.");
-                                return;
+                                return -1;
                             }
                         }
                     }
@@ -91,6 +89,32 @@ public class FacturaController {
                     stmtItems.executeBatch();
                 }
 
+                // Registrar transacciones contables si la factura está cancelada
+                if ("Cancelada".equalsIgnoreCase(factura.getEstado())) {
+                    ParametroContableDAO paramDAO = new ParametroContableDAO();
+                    TransaccionDAO transDAO = new TransaccionDAO();
+
+                    ParametroContable cuentas = paramDAO.obtenerCuentasPorEvento("FACTURA_CANCELADA");
+
+                    if (cuentas != null) {
+                        String descripcionTrans = "Factura Cancelada ID: " + factura.getId();
+
+                        if (!transDAO.transaccionExiste(descripcionTrans)) {
+                            java.sql.Date fecha = new java.sql.Date(factura.getFecha().getTime());
+                            double monto = factura.getTotal();
+
+                            transDAO.registrarTransaccion(cuentas.getCuentaDebeId(), monto, "DEBE", fecha, descripcionTrans);
+                            transDAO.registrarTransaccion(cuentas.getCuentaHaberId(), monto, "HABER", fecha, descripcionTrans);
+
+                            System.out.println(">> Transacciones contables registradas para factura ID: " + factura.getId());
+                        } else {
+                            System.out.println(">> Transacciones ya registradas previamente para factura ID: " + factura.getId());
+                        }
+                    } else {
+                        System.out.println(">> No se encontraron cuentas contables para FACTURA_CANCELADA.");
+                    }
+                }
+
                 conn.commit();
 
                 if (factura.getId() > 0) {
@@ -99,15 +123,20 @@ public class FacturaController {
                     JOptionPane.showMessageDialog(null, "Factura e ítems guardados exitosamente.");
                 }
 
+                return idFactura;
+
             } catch (SQLException e) {
                 conn.rollback();
                 JOptionPane.showMessageDialog(null, "Error en la operación de factura: " + e.getMessage());
+                return -1;
             }
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Error en la conexión: " + e.getMessage());
+            return -1;
         }
     }
+
 
     public Factura obtenerFacturaConItems(int idFactura) {
         Factura factura = null;
@@ -507,6 +536,9 @@ public class FacturaController {
         resumen.setTotalFacturado(totalFacturado);
         return resumen;
     }
+
+
+
 
 
     public List<Factura> obtenerFacturasPorMesYAnio(int mes, int anio) {

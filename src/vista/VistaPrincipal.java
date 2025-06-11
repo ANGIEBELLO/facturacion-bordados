@@ -65,6 +65,7 @@ public class VistaPrincipal extends JFrame {
         // Pestañas de la aplicación
         JTabbedPane pestanas = new JTabbedPane();
 
+
         // Panel Clientes
         JPanel panelClientes = new PanelClientes(); // Asegúrate que esta clase exista
         pestanas.addTab("Clientes", panelClientes);
@@ -78,6 +79,16 @@ public class VistaPrincipal extends JFrame {
         pestanas.addTab("Finanzas", new PanelFinanzas());
 
         getContentPane().add(pestanas, BorderLayout.CENTER);
+
+        //Panel Cuentas Contables
+        pestanas.add("Cuentas Contables", new PanelCuentasContables());
+
+        //Panel libro diario
+        pestanas.add("Libro Contable", new PanelLibroDiario());
+
+        //Panel Estado Resultados
+        pestanas.add("Estado de Resultados ",new PanelEstadoResultados());
+
     }
 
     public static void main(String[] args) {

@@ -1,8 +1,10 @@
 package modelo;
 
 import java.util.ArrayList;
-import java.util.Date;
+
 import java.util.List;
+import java.sql.Date;
+
 
 public class Factura {
     private int id;
@@ -19,9 +21,9 @@ public class Factura {
     private String clienteNombre;
     private String telefonoCliente;
 
-
     public Factura() {
-        this.fecha = new Date();
+        this.fecha = new java.sql.Date(System.currentTimeMillis());
+
         this.items = new ArrayList<>();
     }
     public Factura(int id, java.sql.Date fecha, double total, double abono, double saldo, int idCliente, String clienteNombre, String clienteTelefono) {
@@ -71,6 +73,13 @@ public class Factura {
 
 
 
+    public double getAbono() {
+        return abono;
+    }
+
+    public void setAbono(double abono) {
+        this.abono = abono;
+    }
 
     public String getClienteNombre() {
         return clienteNombre;
@@ -113,18 +122,9 @@ public class Factura {
         this.total = total;
     }
 
-    public double getAbono() {
-        return abono;
-    }
-
-    public void setAbono(double abono) {
-        this.abono = abono;
-    }
-
     public double getSaldo() {
         return saldo;
     }
-
     public void setSaldo(double saldo) {
         this.saldo = saldo;
     }
@@ -196,6 +196,7 @@ public class Factura {
         }
     }
 
+
     public void setTotalFactura(double totalFactura) {
         this.totalFactura = totalFactura;
     }
@@ -203,4 +204,10 @@ public class Factura {
     public double getTotalFactura() {
         return totalFactura;
     }
+
+    public double calcularTotal() {
+        return items.stream().mapToDouble(ItemFactura::getSubtotal).sum();
+    }
+
+
 }
