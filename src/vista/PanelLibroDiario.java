@@ -2,13 +2,23 @@ package vista;
 
 import util.ConexionBD;
 
+import com.toedter.calendar.JDateChooser;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.sql.*;
+
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Date;
 import java.util.List;
 
 public class PanelLibroDiario extends JPanel {
@@ -28,10 +38,17 @@ public class PanelLibroDiario extends JPanel {
     private JLabel lblSaldo;
     private final Map<String, AbstractMap.SimpleEntry<String, String>> cuentasPorOperacion = new HashMap<>();
     private final List<String> cuentasDisponibles = new ArrayList<>();
+    private JDateChooser fechaDesde;
+    private JDateChooser fechaHasta;
+
 
     public PanelLibroDiario() {
         setLayout(new BorderLayout(10, 10));
         setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        // Inicializar fechas ANTES de usar
+        fechaDesde = new JDateChooser();
+        fechaHasta = new JDateChooser();
 
         inicializarOperaciones();
         crearPanelRegistro();
@@ -42,6 +59,7 @@ public class PanelLibroDiario extends JPanel {
         btnGuardar.addActionListener(e -> guardarMovimiento());
         btnFiltrar.addActionListener(e -> filtrarMovimientos());
     }
+
 
     private void inicializarOperaciones() {
         cuentasPorOperacion.put("Compra de materiales", new AbstractMap.SimpleEntry<>("Gastos operativos", "Caja"));
@@ -61,6 +79,53 @@ public class PanelLibroDiario extends JPanel {
 
         campoDescripcion = new JTextField(20);
         campoMonto = new JTextField(10);
+        campoMonto.getDocument().addDocumentListener(new DocumentListener() {
+            private boolean isUpdating = false;
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                formatearCampoMonto();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                formatearCampoMonto();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                formatearCampoMonto();
+            }
+
+            private void formatearCampoMonto() {
+                if (isUpdating) return;
+                isUpdating = true;
+
+                SwingUtilities.invokeLater(() -> {
+                    String texto = campoMonto.getText().replaceAll("[^\\d]", "");
+
+                    if (texto.isEmpty()) {
+                        campoMonto.setText("");
+                        isUpdating = false;
+                        return;
+                    }
+
+                    try {
+                        long valor = Long.parseLong(texto);
+                        NumberFormat formatoColombiano = NumberFormat.getNumberInstance(new Locale("es", "CO"));
+                        formatoColombiano.setMaximumFractionDigits(0); // sin decimales
+                        String formateado = formatoColombiano.format(valor);
+                        campoMonto.setText(formateado);
+                    } catch (NumberFormatException ex) {
+                        // Ignora entradas inválidas
+                    } finally {
+                        isUpdating = false;
+                    }
+                });
+            }
+        });
+
+
         comboOperacion = new JComboBox<>(cuentasPorOperacion.keySet().toArray(new String[0]));
         comboCuentaPrincipal = new JComboBox<>();
         comboCuentaContrapartida = new JComboBox<>();
@@ -85,7 +150,15 @@ public class PanelLibroDiario extends JPanel {
     private void crearPanelFiltrosYTabla() {
         JPanel panelCentro = new JPanel(new BorderLayout(10, 10));
 
-        JPanel panelFiltros = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        // Inicializar filtros (primero)
+        fechaDesde = new JDateChooser();
+        fechaHasta = new JDateChooser();
+        fechaDesde.setDate(new Date()); // hoy
+        fechaHasta.setDate(new Date()); // hoy
+
+        fechaDesde.setPreferredSize(new Dimension(150, 25));
+        fechaHasta.setPreferredSize(new Dimension(150, 25));
+
         comboFiltroCuenta = new JComboBox<>();
         campoFiltroFecha = new JTextField(10);
         btnFiltrar = new JButton("Filtrar");
@@ -96,24 +169,51 @@ public class PanelLibroDiario extends JPanel {
         campoSaldo.setForeground(Color.BLUE);
         campoSaldo.setFont(campoSaldo.getFont().deriveFont(Font.BOLD));
 
-        panelFiltros.add(new JLabel("Cuenta:"));
-        panelFiltros.add(comboFiltroCuenta);
-        panelFiltros.add(lblSaldo);  // Añade el label
-        panelFiltros.add(campoSaldo);
-        panelFiltros.add(new JLabel("Fecha (AAAA-MM-DD):"));
-        panelFiltros.add(campoFiltroFecha);
-        panelFiltros.add(btnFiltrar);
+        // Panel de filtros organizado con GridBagLayout
+        JPanel panelFiltros = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5); // márgenes entre componentes
+        gbc.anchor = GridBagConstraints.WEST;
 
+        gbc.gridx = 0; gbc.gridy = 0;
+        panelFiltros.add(new JLabel("Desde:"), gbc);
+        gbc.gridx = 1;
+        panelFiltros.add(fechaDesde, gbc);
+
+        gbc.gridx = 2;
+        panelFiltros.add(new JLabel("Hasta:"), gbc);
+        gbc.gridx = 3;
+        panelFiltros.add(fechaHasta, gbc);
+
+        gbc.gridx = 4;
+        panelFiltros.add(new JLabel("Cuenta:"), gbc);
+        gbc.gridx = 5;
+        panelFiltros.add(comboFiltroCuenta, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 1;
+        panelFiltros.add(lblSaldo, gbc);
+        gbc.gridx = 1;
+        panelFiltros.add(campoSaldo, gbc);
+
+        gbc.gridx = 4;
+        panelFiltros.add(btnFiltrar, gbc);
+
+        // Agregar el panel de filtros al norte
         panelCentro.add(panelFiltros, BorderLayout.NORTH);
 
+        // Tabla
         modeloTabla = new DefaultTableModel(new String[]{"Fecha", "Descripción", "Cuenta", "Tipo", "Monto"}, 0);
         tablaMovimientos = new JTable(modeloTabla);
         JScrollPane scrollPane = new JScrollPane(tablaMovimientos);
         panelCentro.add(scrollPane, BorderLayout.CENTER);
 
+        // Agregar todo al panel principal
         add(panelCentro, BorderLayout.CENTER);
+
+        // Evento del combo
         comboFiltroCuenta.addActionListener(e -> mostrarSaldoCuentaSeleccionada());
     }
+
 
     private void mostrarSaldoCuentaSeleccionada() {
         String cuentaSel = (String) comboFiltroCuenta.getSelectedItem();
@@ -195,12 +295,13 @@ public class PanelLibroDiario extends JPanel {
 
     private void guardarMovimiento() {
         String descripcion = campoDescripcion.getText().trim();
-        String montoStr = campoMonto.getText().trim();
+        String montoStr = campoMonto.getText().trim().replace(".", "").replace(",", ".");
         String operacion = (String) comboOperacion.getSelectedItem();
 
         if (descripcion.isEmpty() || montoStr.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Completa todos los campos.");
             return;
+
         }
 
         double monto;
@@ -277,41 +378,52 @@ public class PanelLibroDiario extends JPanel {
         return tipo;
     }
 
-
-
     private void filtrarMovimientos() {
-        modeloTabla.setRowCount(0);
-        String cuentaSel = (String) comboFiltroCuenta.getSelectedItem();
-        String fecha = campoFiltroFecha.getText().trim();
+        Date desde = fechaDesde.getDate();
+        Date hasta = fechaHasta.getDate();
+        String cuentaSeleccionada = (String) comboFiltroCuenta.getSelectedItem();
 
-        if (cuentaSel == null) return;
-        int cuentaId = Integer.parseInt(cuentaSel.split(" - ")[0]);
+        if (desde == null || hasta == null || cuentaSeleccionada == null) {
+            JOptionPane.showMessageDialog(this, "Selecciona un rango de fechas y una cuenta.");
+            return;
+        }
 
-        String sql = "SELECT t.fecha, t.descripcion, c.nombre, t.tipo, t.monto " +
-                "FROM transaccion t JOIN cuenta c ON t.cuenta_id = c.id " +
-                "WHERE t.cuenta_id = ?" + (!fecha.isEmpty() ? " AND t.fecha = ?" : "") + " ORDER BY t.fecha DESC";
+        int cuentaId = Integer.parseInt(cuentaSeleccionada.split(" - ")[0]);
+        java.sql.Date sqlDesde = new java.sql.Date(desde.getTime());
+        java.sql.Date sqlHasta = new java.sql.Date(hasta.getTime());
+
+        String sql = "SELECT fecha, descripcion, tipo, monto FROM transaccion " +
+                "WHERE cuenta_id = ? AND fecha BETWEEN ? AND ? ORDER BY fecha ASC";
 
         try (Connection conn = ConexionBD.obtenerConexion();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, cuentaId);
-            if (!fecha.isEmpty()) {
-                stmt.setDate(2, java.sql.Date.valueOf(fecha));
-            }
+            stmt.setDate(2, sqlDesde);
+            stmt.setDate(3, sqlHasta);
 
             ResultSet rs = stmt.executeQuery();
+
+            // Limpiar la tabla antes de insertar nuevos datos
+            modeloTabla.setRowCount(0);
+
             while (rs.next()) {
-                modeloTabla.addRow(new Object[]{
+                Object[] fila = {
                         rs.getDate("fecha"),
                         rs.getString("descripcion"),
-                        rs.getString("nombre"),
+                        cuentaSeleccionada.split(" - ")[1],  // solo nombre cuenta
                         rs.getString("tipo"),
-                        rs.getDouble("monto")
-                });
+                        String.format("$ %,.2f", rs.getDouble("monto"))
+                };
+                modeloTabla.addRow(fila);
             }
 
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error al filtrar: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Error al filtrar movimientos: " + ex.getMessage());
         }
     }
+
+
+
+
 }

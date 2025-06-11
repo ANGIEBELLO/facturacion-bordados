@@ -1,13 +1,16 @@
 <component name="libraryTable">
-  <library name="itextpdf-5.5.13.4">
+  <library name="jar">
     <CLASSES>
-      <root url="jar://D:/Programas/jar/itextpdf-5.5.13.4.jar!/" />
+      <root url="file://D:/Programas/jar" />
     </CLASSES>
     <JAVADOC>
       <root url="file://D:/Programas/jar/jcalendar-1.4/doc/api" />
     </JAVADOC>
     <SOURCES>
       <root url="file://D:/Programas/jar/jcalendar-1.4/src" />
+      <root url="file://D:/Programas/jar" />
     </SOURCES>
+    <jarDirectory url="file://D:/Programas/jar" recursive="false" />
+    <jarDirectory url="file://D:/Programas/jar" recursive="false" type="SOURCES" />
   </library>
 </component>

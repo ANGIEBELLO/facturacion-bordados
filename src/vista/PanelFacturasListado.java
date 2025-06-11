@@ -5,11 +5,14 @@ import modelo.Factura;
 import controlador.FacturaController;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.text.NumberFormat;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 public class PanelFacturasListado extends JPanel {
 
@@ -150,7 +153,49 @@ public class PanelFacturasListado extends JPanel {
                     f.getItems()
             });
         }
+        aplicarFormatoMonedaATabla();
     }
+
+    private void aplicarFormatoMonedaATabla() {
+        NumberFormat formatoColombiano = NumberFormat.getCurrencyInstance(new Locale("es", "CO"));
+
+        // Formatear columna Total (índice 4)
+        tabla.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public void setValue(Object value) {
+                if (value instanceof Number) {
+                    setText(formatoColombiano.format(value));
+                } else {
+                    setText(value != null ? value.toString() : "");
+                }
+            }
+        });
+
+        // Formatear columna Abono (índice 5)
+        tabla.getColumnModel().getColumn(5).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public void setValue(Object value) {
+                if (value instanceof Number) {
+                    setText(formatoColombiano.format(value));
+                } else {
+                    setText(value != null ? value.toString() : "");
+                }
+            }
+        });
+
+        // Formatear columna Saldo (índice 6)
+        tabla.getColumnModel().getColumn(6).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public void setValue(Object value) {
+                if (value instanceof Number) {
+                    setText(formatoColombiano.format(value));
+                } else {
+                    setText(value != null ? value.toString() : "");
+                }
+            }
+        });
+    }
+
 
     private void cargarFacturas() {
         List<Factura> facturas = facturaController.obtenerTodasLasFacturas();

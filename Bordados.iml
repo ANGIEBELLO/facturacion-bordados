@@ -40,5 +40,10 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="api" level="project" />
+    <orderEntry type="library" name="jar calendario" level="project" />
+    <orderEntry type="library" name="api1" level="project" />
+    <orderEntry type="library" name="com" level="project" />
+    <orderEntry type="library" name="lib" level="project" />
   </component>
 </module>
