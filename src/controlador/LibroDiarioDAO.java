@@ -31,11 +31,22 @@ public class LibroDiarioDAO {
                             stmtMov.setInt(1, libroId);
                             stmtMov.setString(2, mov.getCuentaCodigo());
                             stmtMov.setString(3, mov.getCuentaNombre());
-                            stmtMov.setDouble(4, mov.getDebe());
-                            stmtMov.setDouble(5, mov.getHaber());
+
+                            double debe = 0;
+                            double haber = 0;
+
+                            if (mov.getTipo().equalsIgnoreCase("DEBE")) {
+                                debe = mov.getMonto();
+                            } else if (mov.getTipo().equalsIgnoreCase("HABER")) {
+                                haber = mov.getMonto();
+                            }
+
+                            stmtMov.setDouble(4, debe);
+                            stmtMov.setDouble(5, haber);
                             stmtMov.executeUpdate();
                         }
                     }
+
                 }
 
                 conn.commit();
@@ -72,5 +83,7 @@ public class LibroDiarioDAO {
 
         return parametro;
     }
+
+
 
 }

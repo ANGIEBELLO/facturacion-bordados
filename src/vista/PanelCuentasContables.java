@@ -56,7 +56,7 @@ public class PanelCuentasContables extends JPanel {
 
     private void agregarCuenta() {
         String codigo = txtCodigo.getText().trim();
-        String nombre = txtNombre.getText().trim();
+        String nombre = txtNombre.getText().trim().toUpperCase(); // <- Convertimos a mayúsculas
         String tipo = (String) comboTipo.getSelectedItem();
 
         if (codigo.isEmpty() || nombre.isEmpty()) {
@@ -74,6 +74,7 @@ public class PanelCuentasContables extends JPanel {
             JOptionPane.showMessageDialog(this, "Error al agregar la cuenta.");
         }
     }
+
     private void eliminarCuenta() {
         int fila = tabla.getSelectedRow();
         if (fila == -1) {

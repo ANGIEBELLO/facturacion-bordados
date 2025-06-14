@@ -294,14 +294,13 @@ public class PanelLibroDiario extends JPanel {
     }
 
     private void guardarMovimiento() {
-        String descripcion = campoDescripcion.getText().trim();
+        String descripcion = capitalizarDescripcion(campoDescripcion.getText().trim());
         String montoStr = campoMonto.getText().trim().replace(".", "").replace(",", ".");
         String operacion = (String) comboOperacion.getSelectedItem();
 
         if (descripcion.isEmpty() || montoStr.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Completa todos los campos.");
             return;
-
         }
 
         double monto;
@@ -352,7 +351,7 @@ public class PanelLibroDiario extends JPanel {
                 campoDescripcion.setText("");
                 campoMonto.setText("");
                 comboOperacion.setSelectedIndex(0);
-                modeloTabla.setRowCount(0); // limpiar
+                modeloTabla.setRowCount(0);
             } catch (SQLException ex) {
                 conn.rollback();
                 JOptionPane.showMessageDialog(this, "Error al guardar: " + ex.getMessage());
@@ -361,6 +360,7 @@ public class PanelLibroDiario extends JPanel {
             JOptionPane.showMessageDialog(this, "Error de conexión: " + ex.getMessage());
         }
     }
+
 
     private String obtenerTipoCuentaDesdeBD(int cuentaId) {
         String tipo = "ACTIVO"; // Por defecto
@@ -422,6 +422,25 @@ public class PanelLibroDiario extends JPanel {
             JOptionPane.showMessageDialog(this, "Error al filtrar movimientos: " + ex.getMessage());
         }
     }
+
+
+    private String capitalizarDescripcion(String texto) {
+        if (texto == null || texto.isEmpty()) return texto;
+
+        String[] palabras = texto.toLowerCase().trim().split("\\s+");
+        StringBuilder resultado = new StringBuilder();
+
+        for (String palabra : palabras) {
+            if (!palabra.isEmpty()) {
+                resultado.append(Character.toUpperCase(palabra.charAt(0)))
+                        .append(palabra.substring(1))
+                        .append(" ");
+            }
+        }
+
+        return resultado.toString().trim();
+    }
+
 
 
 

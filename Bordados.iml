@@ -45,5 +45,6 @@
     <orderEntry type="library" name="api1" level="project" />
     <orderEntry type="library" name="com" level="project" />
     <orderEntry type="library" name="lib" level="project" />
+    <orderEntry type="library" name="jcommon-1.0.24" level="project" />
   </component>
 </module>

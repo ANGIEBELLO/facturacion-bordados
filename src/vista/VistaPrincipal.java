@@ -1,11 +1,15 @@
 package vista;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import controlador.EstadoResultadosController;
+import util.ConexionBD;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class VistaPrincipal extends JFrame {
 
@@ -87,13 +91,13 @@ public class VistaPrincipal extends JFrame {
         pestanas.add("Libro Contable", new PanelLibroDiario());
 
         //Panel Estado Resultados
-        pestanas.add("Estado de Resultados ",new PanelEstadoResultados());
+        pestanas.add("Estado Resultados", new PanelEstadoResultados());
 
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new VistaPrincipal().setVisible(true);
-        });
+        public static void main (String[]args){
+            SwingUtilities.invokeLater(() -> {
+                new VistaPrincipal().setVisible(true);
+            });
+        }
     }
-}

@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="jcommon-1.0">
+    <CLASSES>
+      <root url="jar://D:/Programas/jar cummon/jcommon-1.0.23.zip!/jcommon-1.0.23" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://D:/Programas/jar cummon/jcommon-1.0.23.zip!/jcommon-1.0.23/src/main/java" />
+      <root url="jar://D:/Programas/jar cummon/jcommon-1.0.23.zip!/jcommon-1.0.23/src/test/java" />
+    </SOURCES>
+  </library>
+</component>

@@ -3,20 +3,18 @@ package modelo;
 import java.util.Date;
 
 public class MovimientoContable {
-    private int cuentaId;            // Id de la cuenta (si usas)
-    private String cuentaCodigo;     // Código de cuenta
-    private String cuentaNombre;     // Nombre de la cuenta
-    private String descripcion;      // Descripción del movimiento
-    private String tipo;             // "DEBE" o "HABER"
-    private double monto;            // Monto del movimiento
-    private Date fecha;              // Fecha del movimiento
-    private double debe;             // Alternativa si usas separado debe/haber
-    private double haber;
+    private int cuentaId;
+    private String cuentaCodigo;
+    private String cuentaNombre;
+    private String descripcion;
+    private String tipo;         // "DEBE" o "HABER"
+    private double monto;
+    private Date fecha;
 
     public MovimientoContable() {}
 
-    // Constructor completo (puedes agregar más según necesites)
-    public MovimientoContable(int cuentaId, String cuentaCodigo, String cuentaNombre, String descripcion, String tipo, double monto, Date fecha, double debe, double haber) {
+    public MovimientoContable(int cuentaId, String cuentaCodigo, String cuentaNombre,
+                              String descripcion, String tipo, double monto, Date fecha) {
         this.cuentaId = cuentaId;
         this.cuentaCodigo = cuentaCodigo;
         this.cuentaNombre = cuentaNombre;
@@ -24,12 +22,9 @@ public class MovimientoContable {
         this.tipo = tipo;
         this.monto = monto;
         this.fecha = fecha;
-        this.debe = debe;
-        this.haber = haber;
     }
 
     // Getters y Setters
-
     public int getCuentaId() {
         return cuentaId;
     }
@@ -86,20 +81,15 @@ public class MovimientoContable {
         this.fecha = fecha;
     }
 
-    public double getDebe() {
-        return debe;
+    private String tipoCuenta;
+
+    public String getTipoCuenta() {
+        return tipoCuenta;
     }
 
-    public void setDebe(double debe) {
-        this.debe = debe;
+    public void setTipoCuenta(String tipoCuenta) {
+        this.tipoCuenta = tipoCuenta;
     }
 
-    public double getHaber() {
-        return haber;
-    }
 
-    public void setHaber(double haber) {
-        this.haber = haber;
-    }
 }
-
