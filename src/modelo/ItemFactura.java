@@ -1,41 +1,26 @@
 package modelo;
 
+
+
+import java.util.Date;
+
 public class ItemFactura {
-    private int id;
-    private String tipo;           // "BORDADO" o "PROGRAMA"
-    private String descripcion;    // Detalle del trabajo
+    private int idItem;
+    private int idFactura;
+    private int idEmpleado;
+    private String tipo;
+    private String descripcion;
     private int cantidad;
     private double valorUnitario;
-    private String empleado;       // Empleado asignado
-    private String nombre;         // Nombre del servicio o producto
-    private double subtotal;
-    private int idItem;
-    private String producto;
-
+    private String nombre;
+    private Date fecha;
+    private boolean pagado;  // Nuevo campo para saber si el ítem ya fue pagado
     private String tipoTrabajo;
-    private String empleadoAsignado;
+    private double subtotal;
+    private Date fechaPago;
 
-// Getters y setters
-
-    public void setIdItem(int idItem) {
-        this.idItem = idItem;
-    }
-
-    public void setProducto(String producto) {
-        this.producto = producto;
-    }
-
-
-    public void setTipoTrabajo(String tipoTrabajo) {
-        this.tipoTrabajo = tipoTrabajo;
-    }
-
-    public void setEmpleadoAsignado(String empleadoAsignado) {
-        this.empleadoAsignado = empleadoAsignado;
-    }
-
-    public ItemFactura() {
-    }
+    // --- Constructores ---
+    public ItemFactura() {}
 
     public ItemFactura(String tipo, String descripcion, int cantidad, double valorUnitario, String nombre) {
         this.tipo = tipo;
@@ -43,11 +28,41 @@ public class ItemFactura {
         this.cantidad = cantidad;
         this.valorUnitario = valorUnitario;
         this.nombre = nombre;
-
     }
 
-    // Getters y Setters
+    // --- Getters y Setters ---
 
+    public Date getFechaPago() {
+        return fechaPago;
+    }
+
+    public void setFechaPago(Date fechaPago) {
+        this.fechaPago = fechaPago;
+    }
+
+    public int getIdItem() {
+        return idItem;
+    }
+
+    public void setIdItem(int idItem) {
+        this.idItem = idItem;
+    }
+
+    public int getIdFactura() {
+        return idFactura;
+    }
+
+    public void setIdFactura(int idFactura) {
+        this.idFactura = idFactura;
+    }
+
+    public int getIdEmpleado() {
+        return idEmpleado;
+    }
+
+    public void setIdEmpleado(int idEmpleado) {
+        this.idEmpleado = idEmpleado;
+    }
 
     public String getTipo() {
         return tipo;
@@ -81,8 +96,6 @@ public class ItemFactura {
         this.valorUnitario = valorUnitario;
     }
 
-
-
     public String getNombre() {
         return nombre;
     }
@@ -91,16 +104,56 @@ public class ItemFactura {
         this.nombre = nombre;
     }
 
+    public Date getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(Date fecha) {
+        this.fecha = fecha;
+    }
+
+    public boolean isPagado() {
+        return pagado;
+    }
+
+    public void setPagado(boolean pagado) {
+        this.pagado = pagado;
+    }
+
+    public double getSubtotal() {
+        return cantidad * valorUnitario;
+    }
+
+
+    public String getProducto() {
+        return nombre;
+    }
+
+    public void setProducto(String producto) {
+        this.nombre = producto;
+    }
+
+    public String getTipoTrabajo() {
+        return tipoTrabajo;
+    }
+
+    public void setTipoTrabajo(String tipoTrabajo) {
+        this.tipoTrabajo = tipoTrabajo;
+    }
+
     public void setSubtotal(double subtotal) {
         this.subtotal = subtotal;
     }
 
-    // Calcula el subtotal del ítem
-    public double getSubtotal() {
-        return cantidad * valorUnitario;
-    }
-}
 
+
+    // (Opcional) Override para debugging o visualización
+    @Override
+    public String toString() {
+        return nombre + " (" + tipo + ") - $" + getSubtotal();
+    }
+
+}
 
 
 

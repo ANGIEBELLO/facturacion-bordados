@@ -74,9 +74,12 @@ public class VistaPrincipal extends JFrame {
         JPanel panelClientes = new PanelClientes(); // Asegúrate que esta clase exista
         pestanas.addTab("Clientes", panelClientes);
 
-        // Panel Facturas
+        //Panel Estado Empleados
+        pestanas.add("Empleados", new PanelEmpleados());
+
+        // Panel Bordados
         JPanel panelFacturas = new PanelFacturasListado(); // Asegúrate que esta clase exista
-        pestanas.addTab("Facturas", panelFacturas);
+        pestanas.addTab("Bordados", panelFacturas);
 
         //Panel Finanzas
 
@@ -92,6 +95,10 @@ public class VistaPrincipal extends JFrame {
 
         //Panel Estado Resultados
         pestanas.add("Estado Resultados", new PanelEstadoResultados());
+
+
+
+       
 
     }
 

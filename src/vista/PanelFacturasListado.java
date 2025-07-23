@@ -33,14 +33,15 @@ public class PanelFacturasListado extends JPanel {
 
         // Crear campos de búsqueda
         txtBuscarProducto = new JTextField(20);
-        btnBuscarProducto = new JButton("Buscar por producto");
+        btnBuscarProducto = new JButton("Buscar");
         btnAbrirFactura = new JButton("Abrir");
 
         JPanel panelBusqueda = new JPanel();
-        panelBusqueda.add(btnAbrirFactura);
-        panelBusqueda.add(new JLabel("Producto:"));
+
+        panelBusqueda.add(new JLabel("Nombre:"));
         panelBusqueda.add(txtBuscarProducto);
         panelBusqueda.add(btnBuscarProducto);
+        panelBusqueda.add(btnAbrirFactura);
         this.add(panelBusqueda, BorderLayout.NORTH);
 
         // Definir columnas de la tabla

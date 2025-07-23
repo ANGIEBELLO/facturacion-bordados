@@ -20,6 +20,8 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.category.DefaultCategoryDataset;
+import modelo.Empleado;
+
 
 import javax.imageio.ImageIO;
 import javax.swing.table.TableModel;
@@ -76,7 +78,7 @@ public class GeneradorPDF {
 
             // TÍTULO DE FACTURA
             Font tituloFont = new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD);
-            Paragraph encabezado = new Paragraph("FACTURA N° " + factura.getId(), tituloFont);
+            Paragraph encabezado = new Paragraph("RECIBO N° " + factura.getId(), tituloFont);
             encabezado.setAlignment(Element.ALIGN_CENTER);
             documento.add(encabezado);
 
@@ -133,7 +135,7 @@ public class GeneradorPDF {
             documento.add(resumen);
 
             // AGRADECIMIENTO
-            Paragraph agradecimiento = new Paragraph("Gracias por su compra. ¡Esperamos volver a verlo pronto!");
+            Paragraph agradecimiento = new Paragraph("Agradecemos tu preferencia. ¡Gracias por elegirnos!");
             agradecimiento.setAlignment(Element.ALIGN_CENTER);
             agradecimiento.setSpacingBefore(20f);
             documento.add(agradecimiento);
@@ -331,6 +333,88 @@ public class GeneradorPDF {
         document.add(Chunk.NEWLINE);
         document.add(chartItextImage);
     }
+
+
+    public static void generarPagoEmpleadoPDF(Empleado empleado, List<ItemFactura> items) throws Exception {
+        Document documento = new Document();
+        String nombreArchivo = "PagoEmpleado_" + empleado.getNombre().replace(" ", "_") + ".pdf";
+        PdfWriter.getInstance(documento, new FileOutputStream(nombreArchivo));
+        documento.open();
+
+        // ENCABEZADO CON LOGO
+        PdfPTable encabezado = new PdfPTable(2);
+        encabezado.setWidthPercentage(100);
+        encabezado.setWidths(new float[]{1, 3});
+
+        Image logo = Image.getInstance("src/recursos/ECLAT1ok.PNG");
+        logo.scaleToFit(100, 100);
+        PdfPCell celdaLogo = new PdfPCell(logo);
+        celdaLogo.setBorder(Rectangle.NO_BORDER);
+        encabezado.addCell(celdaLogo);
+
+        Font fontEmpresa = new Font(Font.FontFamily.HELVETICA, 30, Font.BOLD);
+        PdfPCell celdaNombre = new PdfPCell(new Phrase("Bordados Éclat", fontEmpresa));
+        celdaNombre.setBorder(Rectangle.NO_BORDER);
+        celdaNombre.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        encabezado.addCell(celdaNombre);
+
+        documento.add(encabezado);
+        documento.add(new Paragraph(" "));
+        documento.add(new Chunk(new LineSeparator()));
+        documento.add(new Paragraph(" "));
+
+        // DATOS DEL EMPLEADO
+        Font negrita = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
+        documento.add(new Paragraph("Fecha: " + new SimpleDateFormat("yyyy-MM-dd").format(new Date())));
+        documento.add(new Paragraph("Empleado: " + empleado.getNombre()));
+        documento.add(new Paragraph("Cédula: " + empleado.getCedula()));
+        documento.add(new Paragraph("Teléfono: " + empleado.getTelefono()));
+        documento.add(new Paragraph("Cargo: " + empleado.getCargo()));
+        documento.add(new Paragraph(" "));
+
+        // TABLA DE PAGOS
+        PdfPTable tabla = new PdfPTable(4);
+        tabla.setWidthPercentage(100);
+        tabla.setWidths(new float[]{1, 2, 3, 2});
+        tabla.addCell("Cantidad");
+        tabla.addCell("Tipo");
+        tabla.addCell("Descripción");
+        tabla.addCell("Valor Pagado");
+
+        double total = 0;
+        for (ItemFactura item : items) {
+            double porcentaje = item.getTipo().equalsIgnoreCase("Bordado") ? 0.15 : 0.30;
+            double valorPagado = item.getSubtotal() * porcentaje;
+            total += valorPagado;
+
+            tabla.addCell(String.valueOf(item.getCantidad()));
+            tabla.addCell(item.getTipo());
+            tabla.addCell(item.getNombre());
+            tabla.addCell(String.format("$%,.0f", valorPagado));
+        }
+
+        PdfPCell celdaTotal = new PdfPCell(new Phrase("TOTAL"));
+        celdaTotal.setColspan(3);
+        celdaTotal.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        tabla.addCell(celdaTotal);
+        tabla.addCell(String.format("$%,.0f", total));
+
+        documento.add(tabla);
+        documento.add(new Paragraph(" "));
+
+        // FIRMA
+        documento.add(new Paragraph(" "));
+        documento.add(new Paragraph("Firma del Empleado: __________________________"));
+        documento.add(new Paragraph("Nombre: " + empleado.getNombre()));
+        documento.add(new Paragraph("Cédula: " + empleado.getCedula()));
+
+
+        documento.close();
+
+        Desktop.getDesktop().open(new File(nombreArchivo));
+
+    }
+
 
 
 

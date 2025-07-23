@@ -174,7 +174,6 @@ public class Factura {
 
         for (ItemFactura item : items) {
             double subtotal = item.getCantidad() * item.getValorUnitario();
-            item.setSubtotal(subtotal);
             totalCalculado += subtotal;
         }
 
@@ -195,6 +194,7 @@ public class Factura {
             this.estado = "Pendiente";
         }
     }
+
 
 
     public void setTotalFactura(double totalFactura) {
